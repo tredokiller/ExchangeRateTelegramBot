@@ -7,17 +7,28 @@ namespace Infrastructure.Services;
 public class MessageHandlerService : IMessageHandlerService
 {
 
-    private MessageHandlerModel _messageHandlerModel;
-    private IJsonParserService _parserService;
-    
-    public MessageHandlerService(MessageHandlerModel mHandlerModel = null)
+    private readonly MessageHandler _messageHandlerModel;
+
+    public MessageHandlerService(IJsonParserService _parserService)
     {
-        _messageHandlerModel = mHandlerModel ?? new MessageHandlerModel();
+        if (_parserService == null)
+        {
+            throw new ArgumentNullException(nameof(_parserService));
+        }
+        _messageHandlerModel = new MessageHandler(_parserService);
     }
-    
-    
+
+
     public void HandleMessage(Message message, ITelegramBotClient client)
     {
+        if (message == null)
+        {
+            throw new ArgumentNullException(nameof(message));
+        }
+        if (client == null)
+        {
+            throw new ArgumentNullException(nameof(client));
+        }
         _messageHandlerModel.HandleMessage(message, client);
     }
 }

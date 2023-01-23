@@ -4,5 +4,5 @@ namespace Infrastructure.Services;
 
 public interface IJsonParserService
 {
-    public ExchangeRateRoot Parse(string data);
+    public ExchangeRateRootModel ParseToExchangeRate(string data);
 }
