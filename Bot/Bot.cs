@@ -1,4 +1,6 @@
-﻿using Infrastructure.Services;
+﻿using Infrastructure.Models;
+using Infrastructure.Services;
+using Microsoft.Extensions.Configuration;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
@@ -9,16 +11,16 @@ namespace Bot;
 
 public class Bot
 {
-    const string BotToken = "5940614812:AAGeYkg9AssR4ivegSl4dV6hBQqP4kSWRPA";
 
+    private readonly IConfiguration _configuration;
 
-    private readonly IMessageHandlerService _messageHandlerService;
+    private readonly AppSettings _botSettings;
     
+    private readonly IMessageHandlerService _messageHandlerService;
+    private readonly IJsonParserService _jsonParserService;
     
     private readonly TelegramBotClient _client;
-
-
-
+    
     private readonly CancellationTokenSource _cts = new();
 
     private readonly ReceiverOptions _receiverOptions = new()
@@ -26,13 +28,24 @@ public class Bot
         AllowedUpdates = Array.Empty<UpdateType>()
     };
     
-    
 
-    public Bot()
+    public Bot(IConfiguration configuration)
     {
-        _client = new TelegramBotClient($"{BotToken}");
+        _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+        
+        _botSettings = _configuration.GetRequiredSection("Settings").Get<AppSettings>();
+        
+        _jsonParserService = new JsonParserService(_botSettings);
+        _messageHandlerService = new MessageHandlerService(_jsonParserService);
 
-        _messageHandlerService = new MessageHandlerService();
+        
+
+        _configuration = configuration;
+        
+        
+        _client = new TelegramBotClient(_botSettings.BotToken);
+        
+        
 
         _client.StartReceiving(
             updateHandler: HandleUpdateAsync,
@@ -48,21 +61,21 @@ public class Bot
     }
     
 
-    private async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
+    private Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
     {
         if (update.Message is not { } message)
-            return;
+            return Task.CompletedTask;
 
         if (message.Text is not { } messageText)
-            return;
+            return Task.CompletedTask;
 
         
         _messageHandlerService.HandleMessage(message, botClient);
-
+        return Task.CompletedTask;
     }
 
 
-    Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
+    private Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
     {
         var errorMessage = exception switch
         {
