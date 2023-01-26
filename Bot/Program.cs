@@ -1,3 +1,5 @@
+using Infrastructure.Models;
+using Infrastructure.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -17,9 +19,9 @@ public static class Program
     private static IHostBuilder CreateHostBuilder(string[] args)
     {
         return Host.CreateDefaultBuilder(args).ConfigureAppConfiguration((context, configuration) =>
-        {
-            configuration.Sources.Clear();
-            configuration.AddJsonFile("appsettings.json" , optional: true, reloadOnChange: true);
-        });
+            {
+                configuration.Sources.Clear();
+                configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+            });
     }
 }
