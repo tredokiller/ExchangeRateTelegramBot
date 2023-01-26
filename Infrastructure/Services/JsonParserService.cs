@@ -5,12 +5,14 @@ namespace Infrastructure.Services;
 
 public class JsonParserService : IJsonParserService
 {
-    private AppSettings _settings;
+    private readonly AppSettings _settings;
+    private readonly IPrivatBankHttpClient _privatBankHttpClient;
 
 
-    public JsonParserService(AppSettings settings)
+    public JsonParserService(AppSettings settings , IPrivatBankHttpClient privatBankHttpClient = null)
     {
         _settings = settings ?? throw new ArgumentNullException(nameof(settings));
+        _privatBankHttpClient = privatBankHttpClient ?? new PrivatBankHttpClient();
     }
     
     
@@ -21,7 +23,9 @@ public class JsonParserService : IJsonParserService
             throw new ArgumentNullException(nameof(data));
         }
         
-        var json = new HttpClient().GetStringAsync(_settings.ApiUrl+ data).Result;
+        var json = _privatBankHttpClient.DownloadString(_settings.ApiUrl+ data);
+        
+        Console.WriteLine(json);
 
         ExchangeRateRootModel rate = JsonConvert.DeserializeObject<ExchangeRateRootModel>(json);
 
