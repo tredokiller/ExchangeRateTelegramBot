@@ -18,6 +18,7 @@ public class Bot
     
     private readonly IMessageHandlerService _messageHandlerService;
     private readonly IJsonParserService _jsonParserService;
+    private readonly ICommunication _communicationService;
     
     private readonly TelegramBotClient _client;
     
@@ -29,19 +30,20 @@ public class Bot
     };
     
 
-    public Bot(IConfiguration configuration)
+    public Bot(IConfiguration configuration, ICommunication communicationService = null)
     {
         _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+        _communicationService = communicationService ?? new ConsoleCommunicationService();
         
         _botSettings = _configuration.GetRequiredSection("Settings").Get<AppSettings>();
         
+        
+        
+        
         _jsonParserService = new JsonParserService(_botSettings);
         _messageHandlerService = new MessageHandlerService(_jsonParserService);
-
         
-
         _configuration = configuration;
-        
         
         _client = new TelegramBotClient(_botSettings.BotToken);
         
@@ -55,7 +57,7 @@ public class Bot
         );
         
         
-        Console.ReadLine();
+        _communicationService.ReadLine();
         
         _cts.Cancel();
     }
