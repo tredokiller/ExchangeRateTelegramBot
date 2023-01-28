@@ -1,6 +1,6 @@
 using Infrastructure.Models;
 using Infrastructure.Services;
-using Telegram.Bot;
+using Moq;
 using Telegram.Bot.Types;
 
 namespace Infrastructure.Tests.Models;
@@ -16,14 +16,6 @@ public class MessageHandlerTests
         var model = new MessageHandler(null);
     }
     
-    
-    [TestMethod]
-    public void ConstructorSuccessTest()
-    {
-        var parserService = new JsonParserService(new AppSettings());
-        
-        var model = new MessageHandler(parserService);
-    }
 
 
     [TestMethod]
@@ -39,27 +31,35 @@ public class MessageHandlerTests
     
     
     [TestMethod]
-    [DataRow("/start")]
-    [DataRow("USD")]
-    [DataRow("USD 12.01.2020")]
-    public void HandleMessageSuccessTest(string messageText)
+    [DataRow("/start" , "Привіт, я бот що надає курс найбільш поширених валют до гривні!💥\nТи можеш вказати валюту та дату і " +
+                        "дізнатися відповідний курс!😎\n\nНаприклад: USD 01.10.2022\n\nУвага! Архів зберігає усі дані за останні 4 роки, але ти все ще можеш спробувати ввести ранішню дату!")]
+    [DataRow("USD" , "Невірно заданий код валюти, спробуйте ще раз.\nНаприклад: USD 01.10.2022")]
+    [DataRow("USD 12.01.2020" , "Курс на купівлю USD на 12.01.2020 становить: 23.75\nКурс на продаж становить: 24.25")]
+    [DataRow("USD erttregdf" , "Невірний формат дати, спробуйте ще раз.\nНаприклад: USD 01.10.2022")]
+    public void HandleMessageTest(string messageText , string trueAnswer)
     {
-        var parserService = new JsonParserService(new AppSettings());
-        var model = new MessageHandler(parserService);
+        //var tokenBot = "5940614812:AAGeYkg9AssR4ivegSl4dV6hBQqP4kSWRPA";
 
-        var tokenBot = "5940614812:AAGeYkg9AssR4ivegSl4dV6hBQqP4kSWRPA";
-
-        ITelegramBotClient client = new TelegramBotClient(tokenBot);
-        
-        
+        var mockedClient = new Mock<ITelegramClient>();
 
         var message = new Message();
         
         message.Text = messageText;
         message.Chat = new Chat();
         message.Chat.Id = 0;
+
+        mockedClient.Setup(client => client.SendTextMessage(new ChatId(0), messageText));
+
+
+        var appSettings = new AppSettings();
+
+        appSettings.ApiUrl = "https://api.privatbank.ua/p24api/exchange_rates?date=";
         
-        
-        model.HandleMessage(message , client);
+        var parserService = new JsonParserService(appSettings);
+        var model = new MessageHandler(parserService);
+
+        model.HandleMessage(message , mockedClient.Object);
+
+        mockedClient.Verify(client => client.SendTextMessage(new ChatId(0), trueAnswer) , Times.Once);
     }
 }

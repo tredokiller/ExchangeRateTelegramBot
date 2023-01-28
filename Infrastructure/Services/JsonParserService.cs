@@ -25,8 +25,6 @@ public class JsonParserService : IJsonParserService
         
         var json = _privatBankHttpClient.DownloadString(_settings.ApiUrl+ data);
         
-        Console.WriteLine(json);
-
         ExchangeRateRootModel rate = JsonConvert.DeserializeObject<ExchangeRateRootModel>(json);
 
         return rate;

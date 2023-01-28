@@ -1,5 +1,7 @@
+using FluentAssertions;
 using Infrastructure.Models;
 using Infrastructure.Services;
+using Newtonsoft.Json;
 
 namespace Infrastructure.Tests.Services;
 
@@ -13,13 +15,6 @@ public class JsonParserServiceTests
         var service = new JsonParserService(null);
     }
 
-    [TestMethod]
-    public void ConstructorSuccessTest()
-    {
-        var service = new JsonParserService(new AppSettings());
-    }
-    
-    
     [TestMethod]
     [ExpectedException(typeof(ArgumentNullException))]
     public void ParseToExchangeRateThrowExceptionTest()
@@ -47,12 +42,20 @@ public class JsonParserServiceTests
     public void ParseToExchangeRateSuccessTest(string data)
     {
         var settings = new AppSettings();
-
         settings.ApiUrl = "https://api.privatbank.ua/p24api/exchange_rates?date=";
 
         var service = new JsonParserService(settings);
 
-        var json = service.ParseToExchangeRate(data);
+        var trueJson = new HttpClient().GetStringAsync(settings.ApiUrl + data).Result;
+        var trueModel = JsonConvert.DeserializeObject<ExchangeRateRootModel>(trueJson);
+        
+        var model = service.ParseToExchangeRate(data);
+
+
+        trueModel.Should().BeEquivalentTo(model);
+
+
+
     }
     
     

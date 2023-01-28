@@ -20,7 +20,7 @@ public class Bot
     private readonly IJsonParserService _jsonParserService;
     private readonly ICommunication _communicationService;
     
-    private readonly TelegramBotClient _client;
+    private readonly TelegramClient _client;
     
     private readonly CancellationTokenSource _cts = new();
 
@@ -45,7 +45,7 @@ public class Bot
         
         _configuration = configuration;
         
-        _client = new TelegramBotClient(_botSettings.BotToken);
+        _client = new TelegramClient(_botSettings.BotToken);
         
         
 
@@ -72,7 +72,7 @@ public class Bot
             return Task.CompletedTask;
 
         
-        _messageHandlerService.HandleMessage(message, botClient);
+        _messageHandlerService.HandleMessage(message, _client);
         return Task.CompletedTask;
     }
 

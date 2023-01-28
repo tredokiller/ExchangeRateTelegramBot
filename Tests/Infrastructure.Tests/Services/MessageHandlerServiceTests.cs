@@ -32,12 +32,12 @@ public class MessageHandlerServiceTests
     {
         var parserService = new JsonParserService(new AppSettings());
         var service = new MessageHandlerService(parserService);
-
-        var telegramClient = new Mock<ITelegramBotClient>();
         
-        service.HandleMessage(new Message(), null);
-        service.HandleMessage(null, telegramClient.Object);
+        service.HandleMessage(null, null);
     }
+    
+    
+    
     
     
 }

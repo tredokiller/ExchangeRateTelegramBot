@@ -19,7 +19,7 @@ public class MessageHandlerService : IMessageHandlerService
     }
 
 
-    public void HandleMessage(Message message, ITelegramBotClient client)
+    public void HandleMessage(Message message, ITelegramClient client)
     {
         if (message == null)
         {
