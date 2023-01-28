@@ -16,7 +16,7 @@ public class MessageHandler
         _parserService = parserService ?? throw new ArgumentNullException(nameof(parserService));
     }
 
-    public void HandleMessage(Message message, ITelegramBotClient client)
+    public void HandleMessage(Message message, ITelegramClient client)
     {
         if (message == null)
         {
@@ -40,17 +40,15 @@ public class MessageHandler
     }
 
 
-    private async void SendMessage(ITelegramBotClient client , string messageText , long chatId)
+    private  void SendMessage(ITelegramClient client , string messageText , long chatId)
     {
-        Message sentMessage = await client.SendTextMessageAsync(
-            chatId: chatId,
-            text: messageText,
-            cancellationToken: default);
+         client.SendTextMessage(
+            chatId, messageText);
     }
 
 
 
-    private void GetExchangeRate(Message message , ITelegramBotClient client)
+    private void GetExchangeRate(Message message , ITelegramClient client)
     {
         string text = message.Text;
 
