@@ -12,7 +12,7 @@ public class BotTests
     [ExpectedException(typeof(ArgumentNullException))]
     public void ConstructorThrowExceptionTest()
     {
-        var bot = new Bot(null);
+        var bot = new Bot(null , null);
     }
     
     

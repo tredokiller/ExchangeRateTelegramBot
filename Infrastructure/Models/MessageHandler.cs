@@ -40,10 +40,9 @@ public class MessageHandler
     }
 
 
-    private  void SendMessage(ITelegramClient client , string messageText , long chatId)
+    private void SendMessage(ITelegramClient client , string messageText , long chatId)
     {
-         client.SendTextMessage(
-            chatId, messageText);
+        client.SendTextMessage(chatId, messageText);
     }
 
 
@@ -74,26 +73,31 @@ public class MessageHandler
         
         else
         {
-            try
-            {
-                ExchangeRateRootModel rate = _parserService.ParseToExchangeRate(data);
-                
-                var exchangeRate = rate.ExchangeRate.Where(i=> i.Currency == currency).FirstOrDefault();
-                
-                SendMessage(client, $"{Messages.PurchaseRateMessage + currency} на {data} {Messages.AmountMessage + 
-                    exchangeRate.PurchaseRate}\n{Messages.SellRateMessage + Messages.AmountMessage + exchangeRate.SaleRate}", message.Chat.Id);
-            }
-
-            catch
-            {
-                SendMessage(client, Messages.ParseExceptionMessage, message.Chat.Id);
-            }
-            
+            TryToGetExchangeRate(data, currency, client, message);
         }
     }
 
 
 
+    private void TryToGetExchangeRate(string data , string currency, ITelegramClient client , Message message)
+    {
+        try
+        {
+            ExchangeRateRootModel rate = _parserService.ParseToExchangeRate(data);
+                
+            var exchangeRate = rate.ExchangeRate.Where(i=> i.Currency == currency).FirstOrDefault();
+                
+            SendMessage(client, $"{Messages.PurchaseRateMessage + currency} на {data} {Messages.AmountMessage + 
+                exchangeRate.PurchaseRate}\n{Messages.SellRateMessage + Messages.AmountMessage + exchangeRate.SaleRate}", message.Chat.Id);
+        }
+
+        catch
+        {
+            SendMessage(client, Messages.ParseExceptionMessage, message.Chat.Id);
+        }
+
+    }
+    
 
     private string GetCurrency(string text)
     {
@@ -124,7 +128,7 @@ public class MessageHandler
         {
             data = text.Substring(firstDataIndex, 10);
             Regex reg = new Regex(DataPattern);
-                
+            
             if (!reg.IsMatch(data))
             {
                 data = string.Empty;

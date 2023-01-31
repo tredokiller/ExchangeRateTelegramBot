@@ -20,7 +20,7 @@ public class Bot
     private readonly IJsonParserService _jsonParserService;
     private readonly ICommunication _communicationService;
     
-    private readonly TelegramClient _client;
+    private readonly ITelegramClient _client;
     
     private readonly CancellationTokenSource _cts = new();
 
@@ -30,24 +30,19 @@ public class Bot
     };
     
 
-    public Bot(IConfiguration configuration, ICommunication communicationService = null)
+    public Bot(IConfiguration configuration, ICommunication communicationService)
     {
         _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-        _communicationService = communicationService ?? new ConsoleCommunicationService();
         
         _botSettings = _configuration.GetRequiredSection("Settings").Get<AppSettings>();
         
-        
-        
+        _communicationService = communicationService ?? throw new ArgumentNullException(nameof(communicationService));
         
         _jsonParserService = new JsonParserService(_botSettings);
         _messageHandlerService = new MessageHandlerService(_jsonParserService);
         
-        _configuration = configuration;
-        
+
         _client = new TelegramClient(_botSettings.BotToken);
-        
-        
 
         _client.StartReceiving(
             updateHandler: HandleUpdateAsync,
@@ -72,7 +67,7 @@ public class Bot
             return Task.CompletedTask;
 
         
-        _messageHandlerService.HandleMessage(message, _client);
+        _messageHandlerService.HandleMessage(message , _client);
         return Task.CompletedTask;
     }
 
