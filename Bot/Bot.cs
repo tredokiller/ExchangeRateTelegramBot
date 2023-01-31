@@ -30,19 +30,16 @@ public class Bot
     };
     
 
-    public Bot(IConfiguration configuration, ICommunication communicationService)
+    public Bot(IConfiguration configuration, ICommunication communicationService , ITelegramClient telegramClient, IMessageHandlerService messageHandlerService)
     {
         _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-        
-        _botSettings = _configuration.GetRequiredSection("Settings").Get<AppSettings>();
+
+        _client = telegramClient ?? throw new ArgumentNullException(nameof(telegramClient));
         
         _communicationService = communicationService ?? throw new ArgumentNullException(nameof(communicationService));
         
-        _jsonParserService = new JsonParserService(_botSettings);
-        _messageHandlerService = new MessageHandlerService(_jsonParserService);
+        _messageHandlerService = messageHandlerService ?? throw new ArgumentNullException(nameof(messageHandlerService));
         
-
-        _client = new TelegramClient(_botSettings.BotToken);
 
         _client.StartReceiving(
             updateHandler: HandleUpdateAsync,

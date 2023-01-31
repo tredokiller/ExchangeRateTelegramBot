@@ -1,3 +1,4 @@
+using Infrastructure.Models;
 using Infrastructure.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -12,7 +13,7 @@ public class BotTests
     [ExpectedException(typeof(ArgumentNullException))]
     public void ConstructorThrowExceptionTest()
     {
-        var bot = new Bot(null , null);
+        var bot = new Bot(null , null, null, null);
     }
     
     
@@ -23,6 +24,11 @@ public class BotTests
     {
         var communicationservice = new Mock<ICommunication>();
 
+        var messageService = new Mock<IMessageHandlerService>();
+        var appSettings = new Mock<AppSettings>();
+
+        var client = new Mock<ITelegramClient>();
+
         communicationservice.Setup(service => service.ReadLine()).Returns("Something");
 
         var config = new ConfigurationBuilder();
@@ -30,7 +36,7 @@ public class BotTests
 
         config.AddJsonFile("appsettings.json");
 
-        var bot = new Bot(config.Build(), communicationservice.Object);
+        var bot = new Bot(config.Build(), communicationservice.Object , client.Object, messageService.Object );
 
 
 
