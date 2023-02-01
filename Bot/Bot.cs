@@ -1,5 +1,4 @@
-﻿using Infrastructure.Models;
-using Infrastructure.Services;
+﻿using Infrastructure.Services.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
@@ -11,35 +10,29 @@ namespace Bot;
 
 public class Bot
 {
-
-    private readonly IConfiguration _configuration;
-
-    private readonly AppSettings _botSettings;
-    
     private readonly IMessageHandlerService _messageHandlerService;
-    private readonly IJsonParserService _jsonParserService;
     private readonly ICommunication _communicationService;
-    
+
     private readonly ITelegramClient _client;
-    
+
     private readonly CancellationTokenSource _cts = new();
 
     private readonly ReceiverOptions _receiverOptions = new()
     {
         AllowedUpdates = Array.Empty<UpdateType>()
     };
-    
 
-    public Bot(IConfiguration configuration, ICommunication communicationService , ITelegramClient telegramClient, IMessageHandlerService messageHandlerService)
+
+    public Bot(IConfiguration configuration, ICommunication communicationService, ITelegramClient telegramClient,
+        IMessageHandlerService messageHandlerService)
     {
-        _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-
         _client = telegramClient ?? throw new ArgumentNullException(nameof(telegramClient));
-        
+
         _communicationService = communicationService ?? throw new ArgumentNullException(nameof(communicationService));
-        
-        _messageHandlerService = messageHandlerService ?? throw new ArgumentNullException(nameof(messageHandlerService));
-        
+
+        _messageHandlerService =
+            messageHandlerService ?? throw new ArgumentNullException(nameof(messageHandlerService));
+
 
         _client.StartReceiving(
             updateHandler: HandleUpdateAsync,
@@ -47,13 +40,13 @@ public class Bot
             receiverOptions: _receiverOptions,
             cancellationToken: _cts.Token
         );
-        
-        
+
+
         _communicationService.ReadLine();
-        
+
         _cts.Cancel();
     }
-    
+
 
     private Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
     {
@@ -63,13 +56,14 @@ public class Bot
         if (message.Text is not { } messageText)
             return Task.CompletedTask;
 
-        
-        _messageHandlerService.HandleMessage(message , _client);
+
+        _messageHandlerService.HandleMessage(message, _client);
         return Task.CompletedTask;
     }
 
 
-    private Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
+    private Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception,
+        CancellationToken cancellationToken)
     {
         var errorMessage = exception switch
         {
@@ -81,5 +75,4 @@ public class Bot
         Console.WriteLine(errorMessage);
         return Task.CompletedTask;
     }
-
 }
