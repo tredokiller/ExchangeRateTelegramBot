@@ -1,6 +1,6 @@
 using Telegram.Bot.Types;
 
-namespace Infrastructure.Services;
+namespace Infrastructure.Services.Interfaces;
 
 public interface IMessageHandlerService
 {

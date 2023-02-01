@@ -1,6 +1,6 @@
 using Infrastructure.Models;
 
-namespace Infrastructure.Services;
+namespace Infrastructure.Services.Interfaces;
 
 public interface IJsonParserService
 {

@@ -1,5 +1,6 @@
 using Infrastructure.Models;
 using Infrastructure.Services;
+using Infrastructure.Services.Interfaces;
 using Moq;
 using Telegram.Bot.Types;
 
@@ -22,7 +23,7 @@ public class MessageHandlerTests
     [ExpectedException(typeof(ArgumentNullException))]
     public void HandleMessageThrowExceptionTest()
     {
-        var parserService = new JsonParserService(new AppSettings());
+        var parserService = new JsonParserService(new AppSettings() , new PrivatBankHttpClient(new HttpClient()));
         var model = new MessageHandler(parserService);
         
 
@@ -53,7 +54,7 @@ public class MessageHandlerTests
 
         appSettings.ApiUrl = "https://api.privatbank.ua/p24api/exchange_rates?date=";
         
-        var parserService = new JsonParserService(appSettings);
+        var parserService = new JsonParserService(appSettings , new PrivatBankHttpClient(new HttpClient()));
         var model = new MessageHandler(parserService);
 
         model.HandleMessage(message , mockedClient.Object);

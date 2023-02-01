@@ -1,6 +1,7 @@
-namespace Infrastructure.Services;
-
-public interface IPrivatBankHttpClient
+namespace Infrastructure.Services.Interfaces
 {
-    public string DownloadString(string text);
+    public interface IPrivatBankHttpClient
+    {
+        public string DownloadString(string text);
+    }
 }

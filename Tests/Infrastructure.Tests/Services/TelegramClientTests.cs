@@ -20,28 +20,16 @@ public class TelegramClientTests
         var token = "5940614812:AAGeYkg9AssR4ivegSl4dV6hBQqP4kSWRPA";
         var client = new TelegramClient(token);
 
-        client.StartReceiving(null, null , null, default);
+        client.StartReceiving(null, null, null, default);
     }
-    
-    
+
+
     [TestMethod]
     public void SendTextMessageThrowExceptionTest()
     {
         var token = "5940614812:AAGeYkg9AssR4ivegSl4dV6hBQqP4kSWRPA";
         var client = new TelegramClient(token);
-        
-        try
-        {
-            client.SendTextMessage(null, null);
-        }
-        // Assert
-        catch (Exception ex)
-        {
-            Assert.AreEqual(typeof(ArgumentNullException), ex.GetType());
-        }
-        
+
+        Assert.ThrowsExceptionAsync<ArgumentNullException>((() => client.SendTextMessage(null, null)));
     }
-    
-    
-    
 }

@@ -1,3 +1,4 @@
+using Infrastructure.Services.Interfaces;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
